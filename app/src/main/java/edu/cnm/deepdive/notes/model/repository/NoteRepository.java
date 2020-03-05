@@ -11,19 +11,25 @@ import java.util.List;
 
 public class NoteRepository {
 
-  private final NotesDatabase database;
   private final NoteDao dao;
 
   public NoteRepository() {
-    database = NotesDatabase.getInstance();
+    NotesDatabase database = NotesDatabase.getInstance();
     dao = database.getNoteDao();
   }
 
-  public Completable add(Note note) {
-    return Completable.fromSingle(
-        dao.insert(note)
-            .subscribeOn(Schedulers.io())
-    );
+  public Completable save(Note note) {
+    if (note.getId() == 0) {
+      return Completable.fromSingle(
+          dao.insert(note)
+              .subscribeOn(Schedulers.io())
+      );
+    } else {
+      return Completable.fromSingle(
+          dao.update(note)
+              .subscribeOn(Schedulers.io())
+      );
+    }
   }
 
   public Completable remove(Note note) {
